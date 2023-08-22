@@ -5,9 +5,11 @@ import com.example.asynctypicode.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,27 +27,38 @@ public class UserPostController {
 
     @GetMapping("/user/{userId}")
     public Mono<UserPostDto> getUserPostsBy(@PathVariable String userId) {
-        Mono<User> userMono = webClientBuilder.build()
-            .get()
-            .uri(baseUri + "/users/{userId}", userId)
-            .retrieve()
-            .bodyToMono(User.class)
-            .onErrorResume(WebClientResponseException.NotFound.class, e -> {
-                log.warn("Oopsy: User with ID '{}' not found!", userId);
-                return Mono.empty();
-            });
+        try {
+            int userIdNumeric = Integer.parseInt(userId);
 
-        Mono<List<Post>> postsMono = webClientBuilder.build()
-            .get()
-            .uri(baseUri + "/posts?userId={userId}", userId)
-            .retrieve()
-            .bodyToFlux(Post.class)
-            .collectList();
+            Mono<User> userMono = webClientBuilder.build()
+                .get()
+                .uri(baseUri + "/users/{userId}", userIdNumeric)
+                .retrieve()
+                .bodyToMono(User.class)
+                .onErrorResume(WebClientResponseException.NotFound.class, e -> {
+                    log.warn("Oopsy: User with ID '{}' not found!", userIdNumeric);
+                    return Mono.empty();
+                });
 
-        return userMono.flatMap(user ->
-            postsMono
-                .map(posts -> new UserPostDto(user, posts))
-        );
+            Mono<List<Post>> postsMono = webClientBuilder.build()
+                .get()
+                .uri(baseUri + "/posts?userId={userId}", userIdNumeric)
+                .retrieve()
+                .bodyToFlux(Post.class)
+                .collectList();
+
+            return userMono.flatMap(user ->
+                postsMono
+                    .map(posts -> new UserPostDto(user, posts))
+            );
+
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                String.format("Hint hint: '%s' is not a valid user ID, try something numeric", userId),
+                e
+            );
+        }
     }
 
     @GetMapping("/users")
