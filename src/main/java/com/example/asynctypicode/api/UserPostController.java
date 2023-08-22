@@ -46,14 +46,14 @@ public class UserPostController {
     public Flux<UserPostDto> getAllUsers() {
         Flux<User> usersFlux = webClientBuilder.build()
             .get()
-            .uri("http://jsonplaceholder.typicode.com/users")
+            .uri(baseUri + "/users")
             .retrieve()
             .bodyToFlux(User.class);
 
         return usersFlux.flatMap(user ->
             webClientBuilder.build()
                 .get()
-                .uri("http://jsonplaceholder.typicode.com/posts?userId={userId}", user.getId())
+                .uri(baseUri + "/posts?userId={userId}", user.getId())
                 .retrieve()
                 .bodyToFlux(Post.class)
                 .collectList()
