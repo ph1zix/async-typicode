@@ -26,9 +26,9 @@ public class UserPostService {
 
     public Mono<UserPostDto> getUserPostsBy(String userId) {
         return getUserBy(userId).flatMap(user -> getPostsFrom(user)
-                .collectList()
-                .map(posts -> new UserPostDto(user, posts))
-            );
+            .collectList()
+            .map(posts -> new UserPostDto(user, posts))
+        );
     }
 
     public Flux<UserPostDto> getAllUsersWithPosts() {
