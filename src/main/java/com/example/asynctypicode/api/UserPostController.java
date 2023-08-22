@@ -47,10 +47,10 @@ public class UserPostController {
                 .bodyToFlux(Post.class)
                 .collectList();
 
-            return userMono.flatMap(user ->
-                postsMono
-                    .map(posts -> new UserPostDto(user, posts))
-            );
+            return userMono.flatMap(user -> getPostsBy(user)
+                .collectList()
+                .map(posts -> new UserPostDto(user, posts)
+                ));
 
         } catch (NumberFormatException e) {
             throw new ResponseStatusException(
@@ -69,14 +69,17 @@ public class UserPostController {
             .retrieve()
             .bodyToFlux(User.class);
 
-        return usersFlux.flatMap(user ->
-            webClientBuilder.build()
-                .get()
-                .uri(baseUri + "/posts?userId={userId}", user.getId())
-                .retrieve()
-                .bodyToFlux(Post.class)
+        return usersFlux.flatMap(user -> getPostsBy(user)
                 .collectList()
-                .map(posts -> new UserPostDto(user, posts))
-        );
+                .map(posts -> new UserPostDto(user, posts)
+        ));
+    }
+
+    private Flux<Post> getPostsBy(User user) {
+        return webClientBuilder.build()
+            .get()
+            .uri(baseUri + "/posts?userId={userId}", user.getId())
+            .retrieve()
+            .bodyToFlux(Post.class);
     }
 }
