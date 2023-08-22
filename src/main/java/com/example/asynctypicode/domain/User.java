@@ -1,10 +1,8 @@
 package com.example.asynctypicode.domain;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class User {
     private int id;
     private String name;
@@ -16,7 +14,6 @@ public class User {
     private Company company;
 
     @Getter
-    @Setter
     public static class Address {
         private String street;
         private String suite;
@@ -25,7 +22,6 @@ public class User {
         private Geo geo;
 
         @Getter
-        @Setter
         public static class Geo {
             private String lat;
             private String lng;
@@ -33,7 +29,6 @@ public class User {
     }
 
     @Getter
-    @Setter
     public static class Company {
         private String name;
         private String catchPhrase;
