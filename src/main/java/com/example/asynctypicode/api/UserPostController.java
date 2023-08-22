@@ -40,13 +40,6 @@ public class UserPostController {
                     return Mono.empty();
                 });
 
-            Mono<List<Post>> postsMono = webClientBuilder.build()
-                .get()
-                .uri(baseUri + "/posts?userId={userId}", userIdNumeric)
-                .retrieve()
-                .bodyToFlux(Post.class)
-                .collectList();
-
             return userMono.flatMap(user -> getPostsBy(user)
                 .collectList()
                 .map(posts -> new UserPostDto(user, posts)
