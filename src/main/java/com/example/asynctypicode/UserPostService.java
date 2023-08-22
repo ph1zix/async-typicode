@@ -25,8 +25,7 @@ public class UserPostService {
     private final WebClient.Builder webClientBuilder;
 
     public Mono<UserPostDto> getUserPostsBy(String userId) {
-        return getUserBy(userId)
-            .flatMap(user -> getPostsFrom(user)
+        return getUserBy(userId).flatMap(user -> getPostsFrom(user)
                 .collectList()
                 .map(posts -> new UserPostDto(user, posts))
             );
