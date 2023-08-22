@@ -13,8 +13,7 @@ public class UserPostControllerTest {
     private WebTestClient webTestClient;
 
     @Test
-    void should_have_user_and_post_json_path_when_get_single_endpoint_gets_requested() {
-
+    void should_have_user_and_post_json_path_when_get_user_posts_by_userid_gets_requested() {
         webTestClient.get().uri("/user/1")
             .exchange()
             .expectStatus().isOk()
@@ -26,8 +25,7 @@ public class UserPostControllerTest {
     }
 
     @Test
-    void should_have_user_post_in_body_when_get_all_endpoint_gets_requested() {
-
+    void should_have_body_list_size_of_ten_when_get_all_users_with_posts_gets_requested() {
         webTestClient.get().uri("/users")
             .exchange()
             .expectStatus().isOk()
